@@ -3,15 +3,16 @@ using System.Text;
 using System.Text.Json;
 using Xunit;
 using Bookstore.Application.DTOs;
+using Bookstore.IntegrationTests.Infrastructure;
 
 namespace Bookstore.IntegrationTests;
 
-public class BooksControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class BooksControllerTests : IClassFixture<BookstoreWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly BookstoreWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
-    public BooksControllerTests(WebApplicationFactory<Program> factory)
+    public BooksControllerTests(BookstoreWebApplicationFactory factory)
     {
         _factory = factory;
         _client = _factory.CreateClient();
@@ -67,5 +68,33 @@ public class BooksControllerTests : IClassFixture<WebApplicationFactory<Program>
         Assert.Equal(createBookDto.Author, book.Author);
         Assert.Equal(createBookDto.ISBN, book.ISBN);
         Assert.Equal(createBookDto.Price, book.Price);
+    }
+
+    [Fact]
+    public async Task CreateBook_WithDuplicateISBN_ShouldReturnConflict()
+    {
+        // Arrange
+        var createBookDto = new CreateBookDto(
+            "Test Book",
+            "Test Author",
+            "978-0123456789",
+            29.99m,
+            10,
+            DateTime.UtcNow
+        );
+
+        var json = JsonSerializer.Serialize(createBookDto);
+        var content1 = new StringContent(json, Encoding.UTF8, "application/json");
+        var content2 = new StringContent(json, Encoding.UTF8, "application/json");
+
+        // Act - Create first book
+        var response1 = await _client.PostAsync("/api/books", content1);
+        response1.EnsureSuccessStatusCode();
+
+        // Act - Try to create duplicate book
+        var response2 = await _client.PostAsync("/api/books", content2);
+
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.Conflict, response2.StatusCode);
     }
 }
