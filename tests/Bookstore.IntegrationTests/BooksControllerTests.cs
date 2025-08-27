@@ -7,7 +7,7 @@ using Bookstore.IntegrationTests.Infrastructure;
 
 namespace Bookstore.IntegrationTests;
 
-public class BooksControllerTests : IClassFixture<BookstoreWebApplicationFactory>
+public class BooksControllerTests : IClassFixture<BookstoreWebApplicationFactory>, IAsyncLifetime
 {
     private readonly BookstoreWebApplicationFactory _factory;
     private readonly HttpClient _client;
@@ -16,6 +16,17 @@ public class BooksControllerTests : IClassFixture<BookstoreWebApplicationFactory
     {
         _factory = factory;
         _client = _factory.CreateClient();
+    }
+
+    public async Task InitializeAsync()
+    {
+        // Reset database before each test
+        await _factory.ResetDatabaseAsync();
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     [Fact]

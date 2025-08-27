@@ -10,7 +10,7 @@ namespace Bookstore.IntegrationTests.Database;
 public class MySqlDatabaseTests : IAsyncLifetime
 {
     private readonly MySqlContainer _mySqlContainer = new MySqlBuilder()
-        .WithDatabase("bookstore_db_test")
+        .WithDatabase("bookstore_test")
         .WithUsername("testuser")
         .WithPassword("testpass")
         .Build();
@@ -27,7 +27,7 @@ public class MySqlDatabaseTests : IAsyncLifetime
             .Options;
 
         _context = new BookstoreDbContext(options);
-        await _context.Database.MigrateAsync();
+        await _context.Database.EnsureCreatedAsync();
     }
 
     public async Task DisposeAsync()
