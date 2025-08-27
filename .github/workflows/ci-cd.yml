@@ -28,7 +28,7 @@ jobs:
       run: dotnet --version
 
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
@@ -48,7 +48,7 @@ jobs:
       run: dotnet test tests/Bookstore.IntegrationTests/Bookstore.IntegrationTests.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults/
 
     - name: Upload test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
@@ -84,7 +84,7 @@ jobs:
           --verbosity normal
 
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         directory: TestResults/
         flags: unittests

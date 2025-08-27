@@ -39,7 +39,7 @@ jobs:
         cd ..
 
     - name: Upload Release Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: bookstore-api-${{ github.ref_name }}
         path: publish/
@@ -47,12 +47,10 @@ jobs:
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
-        release_name: Bookstore API ${{ github.ref_name }}
+        name: Bookstore API ${{ github.ref_name }}
         body: |
           ## Changes in this Release
           
@@ -69,16 +67,13 @@ jobs:
           
           ### Deployment
           Download the `bookstore-api-${{ github.ref_name }}.tar.gz` artifact and deploy to your preferred hosting platform.
+        files: |
+          bookstore-api-${{ github.ref_name }}.tar.gz
         draft: false
         prerelease: false
 
     - name: Upload Release Asset
       if: startsWith(github.ref, 'refs/tags/')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bookstore-api-${{ github.ref_name }}.tar.gz
-        asset_name: bookstore-api-${{ github.ref_name }}.tar.gz
-        asset_content_type: application/gzip
+        files: bookstore-api-${{ github.ref_name }}.tar.gz
