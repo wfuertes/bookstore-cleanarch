@@ -522,3 +522,6 @@ Thumbs.db
 # Ignore appsettings with sensitive data
 appsettings.Production.json
 appsettings.Staging.json
+
+# Claude
+.claude

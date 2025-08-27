@@ -16,6 +16,13 @@ public class BookCommandHandler
 
     public async Task<BookDto> Handle(CreateBookCommand command)
     {
+        // Check if book with same ISBN already exists
+        var existingBook = await _bookRepository.GetByIsbnAsync(command.ISBN);
+        if (existingBook != null)
+        {
+            throw new InvalidOperationException($"A book with ISBN {command.ISBN} already exists.");
+        }
+
         var book = new Book(
             command.Title,
             command.Author,

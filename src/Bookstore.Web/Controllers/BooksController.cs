@@ -68,6 +68,10 @@ public class BooksController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
