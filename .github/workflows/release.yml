@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build Release
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Run All Tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
+
+    - name: Publish Web API
+      run: dotnet publish src/Bookstore.Web/Bookstore.Web.csproj --configuration Release --output ./publish --no-build
+
+    - name: Create Release Archive
+      run: |
+        cd publish
+        tar -czf ../bookstore-api-${{ github.ref_name }}.tar.gz .
+        cd ..
+
+    - name: Upload Release Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: bookstore-api-${{ github.ref_name }}
+        path: publish/
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Bookstore API ${{ github.ref_name }}
+        body: |
+          ## Changes in this Release
+          
+          ### Features
+          - Clean Architecture implementation
+          - RESTful API for book management
+          - Comprehensive unit and integration tests
+          
+          ### Technical Details
+          - .NET 8
+          - ASP.NET Core Web API
+          - In-memory data storage
+          - Swagger/OpenAPI documentation
+          
+          ### Deployment
+          Download the `bookstore-api-${{ github.ref_name }}.tar.gz` artifact and deploy to your preferred hosting platform.
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bookstore-api-${{ github.ref_name }}.tar.gz
+        asset_name: bookstore-api-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip

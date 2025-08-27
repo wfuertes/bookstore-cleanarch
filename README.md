@@ -1,5 +1,8 @@
 # Bookstore API - Clean Architecture
 
+[![Build Status](https://github.com/YOUR_USERNAME/bookstore-dotnet/workflows/Build%20Status/badge.svg)](https://github.com/YOUR_USERNAME/bookstore-dotnet/actions)
+[![CI/CD Pipeline](https://github.com/YOUR_USERNAME/bookstore-dotnet/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/YOUR_USERNAME/bookstore-dotnet/actions)
+
 This project demonstrates Clean Architecture principles using .NET 8 and ASP.NET Core.
 
 ## Project Structure
